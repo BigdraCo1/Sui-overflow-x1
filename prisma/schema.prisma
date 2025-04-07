@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionStatus {
+  SENT
+  PENDING
+  FAILED
+}
+
+model Batch {
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now())
+  pushedAt        DateTime?
+  status          TransactionStatus @default(PENDING)
+  payloads        Payload[]
+}
+
+model Payload {
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now())
+  metadata        Metadata?
+  encrypted_data  String
+  
+  // Add these fields for the Batch relationship
+  batch           Batch             @relation(fields: [batchId], references: [id])
+  batchId         String
+}
+
+model Metadata {
+  id              String            @id @default(uuid())
+  device_id       String
+  timestamp       DateTime
+  data_hash       String
+  payload         Payload           @relation(fields: [payloadId], references: [id])
+  payloadId       String            @unique
+}
