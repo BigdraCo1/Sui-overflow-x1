@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cron.service';
-import { WalletModule } from '@/shared/constants/wallet.module';
+import { WalletModule } from '@/config/wallet/wallet.module';
 
 @Module({
   imports: [

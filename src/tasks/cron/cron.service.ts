@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
-import { Wallet } from '@/shared/constants/wallet.constants';
+import { Wallet } from '@/config/wallet/wallet.service';
 import { CronJob } from 'cron';
 
 @Injectable()
@@ -15,7 +15,6 @@ export class CronService {
   @Cron(CronExpression.EVERY_HOUR)
   async handleHourly() {
     this.logger.log('Running hourly task');
-    // Add your hourly task logic here
   }
 
   // Manually create and register a cron job

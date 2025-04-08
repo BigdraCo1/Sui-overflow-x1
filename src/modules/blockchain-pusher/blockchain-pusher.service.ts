@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBlockchainPusherDto } from './dto/create-blockchain-pusher.dto';
-import { Wallet } from '@/shared/constants';
+import { Wallet } from '@/config/wallet/wallet.service';
 import { balance } from '@/common/helper';
 import { DatabaseService } from '@/config/database/database.service';
 import { Batch } from '@prisma/client';

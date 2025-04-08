@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BlockchainPusherController } from './blockchain-pusher.controller';
 import { BlockchainPusherService } from './blockchain-pusher.service';
-import { Wallet } from '@/shared/constants/wallet.constants';
+import { Wallet } from '@/config/wallet/wallet.service';
 
 describe('BlockchainPusherController', () => {
   let controller: BlockchainPusherController;
