@@ -11,9 +11,7 @@ const GoogleAuth: React.FC<GoogleAuthProps> = ({ onSuccess, onError }) => {
   const buttonId = 'google-login-button';
 
   useEffect(() => {
-    // Google Client ID - replace with your actual Google Client ID from Google Cloud Console
-    // To get a Google Client ID, go to https://console.cloud.google.com/apis/credentials
-    const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID";
+    const GOOGLE_CLIENT_ID = "962179703260-q6gtv8s0vdpqr9neg3sl11fdnbr8mpjj.apps.googleusercontent.com";
 
     const handleGoogleResponse = (response: any) => {
       try {
