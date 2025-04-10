@@ -4,10 +4,11 @@ import { Wallet } from '@/config/wallet/wallet.service';
 import { balance } from '@/common/helper';
 import { DatabaseService } from '@/config/database/database.service';
 import { Batch } from '@prisma/client';
+import { WalrusSealService } from '@/common/walrus-seal/walrus-seal.service';
 
 @Injectable()
 export class BlockchainPusherService {
-  constructor(private readonly wallet: Wallet, private readonly databaseService: DatabaseService) {}
+  constructor(private readonly wallet: Wallet, private readonly databaseService: DatabaseService, private readonly walrusSealService: WalrusSealService) {}
 
   async deployVault(createBlockchainPusherDto: CreateBlockchainPusherDto): Promise<Batch> {
     // Create the batch with nested payloads

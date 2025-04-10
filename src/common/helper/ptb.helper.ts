@@ -9,7 +9,7 @@ import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
  * @param keypair The keypair to sign with
  * @returns The transaction response
  */
-export const executeTransaction = async (
+export const signAndExecuteTransaction = async (
   client: SuiClient,
   txb: Transaction,
   keypair: Ed25519Keypair,

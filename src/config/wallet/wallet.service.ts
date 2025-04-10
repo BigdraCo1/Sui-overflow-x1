@@ -4,7 +4,9 @@ import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
 import { writeToFile } from '@/common/helper';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class Wallet {
   private keypair: Ed25519Keypair;
   public publicKey: string;
@@ -14,7 +16,7 @@ export class Wallet {
   constructor() {
     this.keypair = this.loadOrCreateKeypair();
     this.publicKey = this.keypair.getPublicKey().toSuiAddress();
-    this.rpcUrl = getFullnodeUrl("testnet");
+    this.rpcUrl = getFullnodeUrl("testnet"); 
     this.suiClient = new SuiClient({ url: this.rpcUrl });
   }
 
