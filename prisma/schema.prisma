@@ -11,6 +11,7 @@ enum TransactionStatus {
   SENT
   PENDING
   FAILED
+  WAITING_FOR_ALLOWLIST
 }
 
 model Batch {
@@ -30,6 +31,16 @@ model Payload {
   // Add these fields for the Batch relationship
   batch           Batch             @relation(fields: [batchId], references: [id])
   batchId         String
+  allowlist       Allowlist?
+}
+
+model Allowlist {
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now())
+  payload         Payload           @relation(fields: [payloadId], references: [id])
+  payloadId       String            @unique
+  capId           String
+  allowlistId     String
 }
 
 model Metadata {

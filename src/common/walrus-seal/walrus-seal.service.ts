@@ -73,6 +73,7 @@ export class WalrusSealService {
 
     async handlePublish(wl_id: string, cap_id: string, moduleName: string, blobId: string) {
         const tx = new Transaction();
+        tx.setGasBudget(100000000);
         tx.moveCall({
           target: `${PACKAGE_ID}::${moduleName}::publish`,
           arguments: [tx.object(wl_id), tx.object(cap_id), tx.pure.string(blobId)],
@@ -91,12 +92,12 @@ export class WalrusSealService {
         return tx;
     }
 
-    async addAllowlistEntry(objectIds: string[], moduleName: string, address: string) {
+    async addAllowlistEntry(cap: string, allowlist: string, moduleName: string, address: string) {
         const tx = new Transaction();
         tx.setGasBudget(100000000);
         await tx.moveCall({
             target: `${PACKAGE_ID}::${moduleName}::add`,
-            arguments: [tx.object(objectIds[1]), tx.object(objectIds[0]), tx.pure.address(address)],
+            arguments: [tx.object(allowlist), tx.object(cap), tx.pure.address(address)],
         });
         return tx;
     }

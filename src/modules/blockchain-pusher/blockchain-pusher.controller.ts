@@ -16,9 +16,14 @@ export class BlockchainPusherController {
     return this.blockchainPusherService.balance();
   }
 
+  @Get('allow')
+  createAllow() {
+    return this.blockchainPusherService.createAllow();
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.blockchainPusherService.findOne(+id);
+  pushBatch(@Param('id') id: string) {
+    return this.blockchainPusherService.pushBatch(id);
   }
 
   // @Patch(':id')
