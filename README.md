@@ -1,44 +1,78 @@
+## Overview
+This project is a frontend application built using TypeScript. It aims to provide a seamless and interactive user experience with strong typing support to improve code quality and maintainability.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+To run this project locally, you need to have the following installed:
 
-Follow these steps:
+- [Node.js](https://nodejs.org/) (version 12 or higher)
+- [npm](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/your-repository.git
+   cd your-repository
+Install the dependencies:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+bash
+คัดลอก
+แก้ไข
+npm install
+# or if you're using yarn
+yarn install
+Development Mode
+To start the development server and view the application in your browser, run:
 
-# Step 3: Install the necessary dependencies.
-npm i
+bash
+คัดลอก
+แก้ไข
+npm start
+# or if you're using yarn
+yarn start
+This will open the application at http://localhost:3000 (or another port if configured differently).
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Building for Production
+To build the project for production, run:
 
-**Edit a file directly in GitHub**
+bash
+คัดลอก
+แก้ไข
+npm run build
+# or if you're using yarn
+yarn build
+This will create a dist/ folder with optimized production files.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Folder Structure
+src/: Contains the main source code of the application
 
-**Use GitHub Codespaces**
+components/: Reusable UI components
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+services/: API calls and business logic
 
-## What technologies are used for this project?
+styles/: CSS/SCSS files
 
-This project is built with:
+public/: Static files such as images and icons
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+tsconfig.json: TypeScript configuration file
+
+Linting & Formatting
+This project uses ESLint and Prettier for maintaining code quality and formatting.
+
+To lint the code, run:
+
+bash
+คัดลอก
+แก้ไข
+npm run lint
+# or if you're using yarn
+yarn lint
+To format the code, run:
+
+bash
+คัดลอก
+แก้ไข
+npm run format
+# or if you're using yarn
+yarn format
