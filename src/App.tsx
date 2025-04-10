@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ShipmentDetail from "./pages/ShipmentDetail";
 import NotFound from "./pages/NotFound";
+import AuthCallback from "./components/auth/AuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/shipment/:id" element={<ShipmentDetail />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -5,6 +5,10 @@ import '@mysten/dapp-kit/dist/index.css';
 import { SuiClientProvider, WalletProvider } from '@mysten/dapp-kit';
 import { getFullnodeUrl } from '@mysten/sui/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Buffer } from 'buffer';
+
+// Make Buffer available globally
+window.Buffer = Buffer;
 
 const queryClient = new QueryClient();
 const networks = {

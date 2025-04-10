@@ -1,4 +1,3 @@
-
 import type { GoogleButtonOptions, GoogleAuthConfig } from '@/types/google';
 
 export interface GoogleUserProfile {
@@ -6,6 +5,10 @@ export interface GoogleUserProfile {
   name: string;
   picture: string;
   sub: string; // Google user ID
+}
+
+export interface SuiWalletAccount {
+  address: string;
 }
 
 export async function initGoogleAuth(

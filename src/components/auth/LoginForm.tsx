@@ -7,27 +7,52 @@ import { GoogleUserProfile } from '@/utils/auth';
 import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { SuiSvgIcon } from '@/components/ui/sui-icon';
+import { executeZkLogin } from '@/services/zkLoginService';
 
-// Use an interface that matches what dApp Kit provides
 interface SuiWalletAccount {
   address: string;
 }
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isZkLoginLoading, setIsZkLoginLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Handle successful Google authentication
-  const handleGoogleAuthSuccess = (userProfile: GoogleUserProfile) => {
-    // ... keep existing code (Google auth handling)
+  const handleZkLoginAuth = async () => {
+    setIsZkLoginLoading(true);
+    
+    try {
+      const result = await executeZkLogin();
+      
+      if (result.success) {
+        toast.success(`เชื่อมต่อสำเร็จด้วย zkLogin: ${result.address.substring(0, 6)}...${result.address.substring(result.address.length - 4)}`);
+        navigate('/dashboard');
+      } else {
+        toast.error('การเชื่อมต่อด้วย zkLogin ล้มเหลว');
+      }
+    } catch (error) {
+      console.error('zkLogin error:', error);
+      toast.error('การเชื่อมต่อด้วย zkLogin ล้มเหลว');
+    } finally {
+      setIsZkLoginLoading(false);
+    }
   };
 
-  // Handle Google authentication error
-  const handleGoogleAuthError = (error: Error) => {
-    // ... keep existing code (Google auth error handling)
+  const handleGoogleAuthSuccess = (userProfile: GoogleUserProfile) => {
+    setIsLoading(true);
+    
+    toast.success('Successfully logged in with Google!');
+    navigate('/dashboard');
   };
-  
-  // Handle successful Sui Wallet authentication
+
+  const handleGoogleAuthError = (error: Error) => {
+    console.error('Google auth error:', error);
+    toast.error('Failed to log in with Google. Please try again.');
+    setIsLoading(false);
+  };
+
   const handleSuiWalletSuccess = (account: SuiWalletAccount) => {
     setIsLoading(true);
     
@@ -39,8 +64,7 @@ const LoginForm = () => {
       navigate('/dashboard');
     }, 500);
   };
-  
-  // Handle Sui Wallet authentication error
+
   const handleSuiWalletError = (error: Error) => {
     setIsLoading(false);
     toast.error('การเชื่อมต่อ Sui Wallet ล้มเหลว: ' + error.message);
@@ -50,7 +74,22 @@ const LoginForm = () => {
     <Card className="w-full max-w-md mx-auto">
       <CardContent className="pt-6">
         <div className="space-y-6 animate-slide-up">
-          {/* Google Identity Services Authentication Button */}
+          <div className="w-full">
+            <Button 
+              onClick={handleZkLoginAuth}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+              disabled={isZkLoginLoading || isLoading}
+            >
+              <SuiSvgIcon className="w-5 h-5" />
+              {isZkLoginLoading ? 'กำลังเชื่อมต่อ...' : 'เข้าสู่ระบบด้วย Sui zkLogin'}
+            </Button>
+          </div>
+          
+          <div className="relative flex items-center justify-center w-full my-4">
+            <Separator className="w-full" />
+            <span className="absolute bg-white px-2 text-xs text-gray-500">หรือ</span>
+          </div>
+          
           <div className="w-full">
             <GoogleAuth 
               onSuccess={handleGoogleAuthSuccess} 
@@ -63,7 +102,6 @@ const LoginForm = () => {
             <span className="absolute bg-white px-2 text-xs text-gray-500">หรือ</span>
           </div>
           
-          {/* Sui Wallet Authentication Button */}
           <div className="w-full">
             <SuiWalletAuth
               onSuccess={handleSuiWalletSuccess}
