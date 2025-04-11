@@ -27,7 +27,7 @@ const SuiWalletAuth: React.FC<SuiWalletAuthProps> = ({ onSuccess, onError }) => 
         connectText={
           <div className="flex items-center gap-2">
             <Wallet className="h-5 w-5" />
-            <span>{isConnecting ? 'กำลังเชื่อมต่อ...' : 'Connect Sui Wallet'}</span>
+            <span>{isConnecting ? 'Connecting...' : 'Connect Sui Wallet'}</span>
           </div>
         }
       />

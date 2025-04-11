@@ -25,14 +25,14 @@ const AuthCallback = () => {
         const result = await handleZkLoginCallback(idToken);
         
         if (result.success) {
-          toast.success('เข้าสู่ระบบสำเร็จ');
+          toast.success('Login successful.');
           navigate('/dashboard');
         } else {
           throw new Error('Failed to complete authentication');
         }
       } catch (err) {
         console.error('Authentication callback error:', err);
-        setError('การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่อีกครั้ง');
+        setError('Login failed. Please try again.');
         setTimeout(() => navigate('/login'), 3000);
       } finally {
         setLoading(false);
@@ -48,12 +48,12 @@ const AuthCallback = () => {
         {loading ? (
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-lg">กำลังเข้าสู่ระบบ...</p>
+            <p className="mt-4 text-lg">Logging in.....</p>
           </div>
         ) : error ? (
           <div className="text-center text-red-500">
             <p className="text-lg">{error}</p>
-            <p className="mt-2">กำลังนำคุณกลับไปยังหน้าเข้าสู่ระบบ...</p>
+            <p className="mt-2">Redirecting you to the login page...</p>
           </div>
         ) : null}
       </div>

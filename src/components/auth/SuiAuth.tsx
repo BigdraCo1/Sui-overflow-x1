@@ -46,7 +46,7 @@ const SuiAuth: React.FC<SuiAuthProps> = ({ onSuccess, onError }) => {
   };
 
   if (isWalletAvailable === null) {
-    return <Button disabled>กำลังตรวจสอบกระเป๋า Sui...</Button>;
+    return <Button disabled>Verifying the Sui wallet...</Button>;
   }
 
   if (isWalletAvailable === false) {
@@ -55,14 +55,14 @@ const SuiAuth: React.FC<SuiAuthProps> = ({ onSuccess, onError }) => {
         variant="outline" 
         onClick={() => window.open('https://chrome.google.com/webstore/detail/sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil', '_blank')}
       >
-        ติดตั้งกระเป๋า Sui
+        Install Sui Wallet
       </Button>
     );
   }
 
   return (
     <Button onClick={handleConnect} className="w-full">
-      เชื่อมต่อกับกระเป๋า Sui
+      Connect Sui Wallet
     </Button>
   );
 };

@@ -7,7 +7,6 @@ import { getFullnodeUrl } from '@mysten/sui/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Buffer } from 'buffer';
 
-// Make Buffer available globally
 window.Buffer = Buffer;
 
 const queryClient = new QueryClient();
@@ -17,7 +16,6 @@ const networks = {
   mainnet: { url: getFullnodeUrl('mainnet') },
 };
 
-// Make sure React StrictMode is not causing double mounting of providers
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <SuiClientProvider networks={networks} defaultNetwork="devnet">

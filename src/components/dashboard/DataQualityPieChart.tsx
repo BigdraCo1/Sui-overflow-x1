@@ -10,8 +10,8 @@ interface DataQualityPieChartProps {
 
 const DataQualityPieChart: React.FC<DataQualityPieChartProps> = ({ normal, abnormal }) => {
   const data = [
-    { name: 'Normal', value: normal, color: '#06D6A0' },
-    { name: 'Abnormal', value: abnormal, color: '#FF5A5F' },
+    { name: 'Pass', value: normal, color: '#06D6A0' },
+    { name: 'Fail', value: abnormal, color: '#FF5A5F' },
   ];
 
   const COLORS = ['#06D6A0', '#FF5A5F'];

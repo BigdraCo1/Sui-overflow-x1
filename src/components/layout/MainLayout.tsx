@@ -35,7 +35,7 @@ const MainLayout = ({ children, title }: MainLayoutProps) => {
                 <path d="M2 12h20" />
               </svg>
             </div>
-            <span className="text-xl font-semibold text-med-gray">MedVoyage</span>
+            <span className="text-xl font-semibold text-med-gray">ISOPOD</span>
           </div>
           
           {/* Right side controls */}

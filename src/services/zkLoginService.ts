@@ -118,7 +118,6 @@ export const getUserSalt = async (jwt: string) => {
   }
 }
 
-// แก้ไขส่วนนี้เพื่อแก้ปัญหา CORS
 export const getZkProof = async (
   jwt: string,
   extendedEphemeralPublicKey: string,
