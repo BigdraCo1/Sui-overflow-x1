@@ -6,7 +6,7 @@ import { fromHex, toHex } from '@mysten/sui/utils';
 import { Transaction } from '@mysten/sui/transactions';
 import { services, PACKAGE_ID, NUM_EPOCH } from '@/shared/constants';
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
-import { uploadFile } from '@/common/helper';
+import { uploadFile, retrieveBlob } from '@/common/helper';
 
 @Injectable()
 export class WalrusSealService {
@@ -90,6 +90,15 @@ export class WalrusSealService {
         });
 
         return tx;
+    }
+
+    async retrieveBlob(blobId: string) {
+        try {
+            return await retrieveBlob(blobId);
+        } catch (error) {
+            console.error(`Error retrieving or parsing blob ${blobId}:`, error);
+            throw new Error(`Failed to retrieve and parse blob: ${error.message}`);
+        }
     }
 
     async addAllowlistEntry(cap: string, allowlist: string, moduleName: string, address: string) {

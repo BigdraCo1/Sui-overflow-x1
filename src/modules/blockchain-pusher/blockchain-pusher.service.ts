@@ -7,7 +7,6 @@ import { Batch, Payload } from '@prisma/client';
 import { WalrusSealService } from '@/common/walrus-seal/walrus-seal.service';
 import { sleep } from '@/common/helper';
 import { PACKAGE_ID } from '@/shared/constants';
-import { all } from 'axios';
 
 @Injectable()
 export class BlockchainPusherService {
@@ -161,8 +160,7 @@ export class BlockchainPusherService {
     }
   }
 
-
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} blockchainPusher`;
   }
 }

@@ -31,7 +31,6 @@ const walrusClient = new WalrusClient({
  * @returns The response from writeBlob
  */
 export async function uploadFile(encryptedData: Uint8Array, epochs: number = 3, deletable: boolean = false, keypair: Ed25519Keypair) {
-    // Upload using WalrusClient
     return await walrusClient.writeBlob({
         blob: encryptedData,
         deletable: deletable,

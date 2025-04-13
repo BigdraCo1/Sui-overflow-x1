@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BlockchainPusherModule } from './modules/blockchain-pusher/blockchain-pusher.module';
+import { BlockchainPusherModule, BlockchainRetrieverModule } from './modules';
 import { CronModule } from './tasks/cron/cron.module';
 import { WalletModule } from './config/wallet/wallet.module';
 
@@ -7,7 +7,8 @@ import { WalletModule } from './config/wallet/wallet.module';
   imports: [
     WalletModule,
     BlockchainPusherModule,
-    CronModule
+    CronModule,
+    BlockchainRetrieverModule,
   ],
   controllers: [],
   providers: [],
