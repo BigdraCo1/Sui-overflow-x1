@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException } from '@nestjs/common';
 import { BlockchainRetrieverService } from './blockchain-retriever.service';
 import { CreateBlockchainRetrieverDto } from './dto/create-blockchain-retriever.dto';
 import { UpdateBlockchainRetrieverDto } from './dto/update-blockchain-retriever.dto';
@@ -13,13 +13,14 @@ export class BlockchainRetrieverController {
   }
 
   @Get()
-  findAll() {
-    return this.blockchainRetrieverService.findAll();
-  }
-
-  @Get(':id')
-  retrieveAndDecrypt(@Param('id') id: string) {
-    return this.blockchainRetrieverService.retrieveAndDecrypt(id);
+  retrieveAndDecrypt(
+    @Query('allowlistId') allowlistId: string,
+    @Query('blobId') blobId: string
+  ) {
+    if (!allowlistId || !blobId) {
+      throw new BadRequestException('Both allowlistId and blobId query parameters are required');
+    }
+    return this.blockchainRetrieverService.retrieveAndDecrypt(blobId, allowlistId);
   }
 
   @Patch(':id')

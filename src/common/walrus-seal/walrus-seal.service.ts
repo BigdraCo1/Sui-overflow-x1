@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Wallet } from '@/config/wallet/wallet.service';
-import { getAllowlistedKeyServers, SealClient } from '@mysten/seal';
+import { getAllowlistedKeyServers, SealClient, SessionKey, NoAccessError, EncryptedObject } from '@mysten/seal';
 import { signAndExecuteTransaction } from '@/common/helper';
 import { fromHex, toHex } from '@mysten/sui/utils';
 import { Transaction } from '@mysten/sui/transactions';
-import { services, PACKAGE_ID, NUM_EPOCH } from '@/shared/constants';
+import { services, PACKAGE_ID, NUM_EPOCH, TTL_MIN } from '@/shared/constants';
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { uploadFile, retrieveBlob } from '@/common/helper';
+import { MoveCallConstructor } from '@/shared/interfaces';
 
 @Injectable()
 export class WalrusSealService {
@@ -15,7 +16,7 @@ export class WalrusSealService {
 
     constructor(private readonly wallet: Wallet) {
         this.client = new SealClient({
-            suiClient: this.wallet.suiClient,
+            suiClient:  this.wallet.suiClient,
             serverObjectIds: getAllowlistedKeyServers('testnet'),
             verifyKeyServers: false,
         });
@@ -28,18 +29,18 @@ export class WalrusSealService {
             // Convert object to JSON string, then to Uint8Array
             const jsonString = JSON.stringify(data);
             const dataBytes = new TextEncoder().encode(jsonString);
-            
-            const nonce = crypto.getRandomValues(new Uint8Array(5));
+
+            // const nonce = crypto.getRandomValues(new Uint8Array(5));
             const policyObjectBytes = fromHex(policyObject);
-            const id = toHex(new Uint8Array([...policyObjectBytes, ...nonce]));
-    
+            const id = toHex(new Uint8Array([...policyObjectBytes]));
+
             const { encryptedObject: encryptedBytes } = await this.client.encrypt({
                 threshold: 2,
                 packageId,
                 id,
                 data: dataBytes,
             });
-    
+
             return {
                 id,
                 encryptedBytes
@@ -71,12 +72,39 @@ export class WalrusSealService {
         }
     }
 
+    async constructMoveCall(packageId: string, moduleName: string, allowlistId: string): Promise<MoveCallConstructor> {
+        return (tx: Transaction, id: string) => {
+          tx.setGasBudget(100000000);
+          tx.moveCall({
+            target: `${packageId}::${moduleName}::seal_approve`,
+            arguments: [tx.pure.vector('u8', fromHex(id)), tx.object(allowlistId)],
+          });
+        };
+    }
+
+    async constructTxBytes(
+        moduleName: string,
+        innerIds: string[],
+    ): Promise<Uint8Array> {
+        const tx = new Transaction();
+        for (const innerId of innerIds) {
+            const keyIdArg = tx.pure.vector('u8', fromHex(innerId));
+            const objectArg = tx.object(innerId);
+            tx.setGasBudget(100000000);
+            tx.moveCall({
+                target: `${PACKAGE_ID}::${moduleName}::seal_approve`,
+                arguments: [keyIdArg, objectArg],
+            });
+        }
+        return await tx.build({ client: this.wallet.suiClient, onlyTransactionKind: true });
+    }
+
     async handlePublish(wl_id: string, cap_id: string, moduleName: string, blobId: string) {
         const tx = new Transaction();
         tx.setGasBudget(100000000);
         tx.moveCall({
-          target: `${PACKAGE_ID}::${moduleName}::publish`,
-          arguments: [tx.object(wl_id), tx.object(cap_id), tx.pure.string(blobId)],
+            target: `${PACKAGE_ID}::${moduleName}::publish`,
+            arguments: [tx.object(wl_id), tx.object(cap_id), tx.pure.string(blobId)],
         });
         return tx;
     }
@@ -92,16 +120,62 @@ export class WalrusSealService {
         return tx;
     }
 
-    async retrieveBlob(blobId: string) {
+    async retrieveBlob(blobId: string, txBytes: Uint8Array, allowlistIds: string[]) {
+        const sessionKey = new SessionKey({
+            address: this.wallet.publicKey,
+            packageId: PACKAGE_ID,
+            ttlMin: TTL_MIN,
+        });
+
+        const msg = await sessionKey.getPersonalMessage()
+        const sig = (await this.wallet.getKeypair().signPersonalMessage(msg)).signature;
+        await sessionKey.setPersonalMessageSignature(sig);
+        
+        let validDownload;
         try {
-            return await retrieveBlob(blobId);
+            validDownload = await retrieveBlob(blobId);
         } catch (error) {
             console.error(`Error retrieving or parsing blob ${blobId}:`, error);
             throw new Error(`Failed to retrieve and parse blob: ${error.message}`);
         }
-    }
 
-    async addAllowlistEntry(cap: string, allowlist: string, moduleName: string, address: string) {
+        // await this.client.fetchKeys({
+		// 	ids: allowlistIds,
+		// 	txBytes,
+		// 	sessionKey,
+		// 	threshold: 2,
+		// });
+
+        console.log("Valid downloads:", validDownload);
+
+        const fullId = EncryptedObject.parse(new Uint8Array(validDownload)).id;
+
+        console.log("Full ID:", fullId);
+
+        const txb = await this.constructTxBytes("allowlist", [fullId]);
+
+        console.log("Transaction bytes:", txb);
+
+        const decryptedBytes = await this.client.decrypt({
+			data: validDownload,
+			sessionKey,
+			txBytes: txb,
+		});
+
+    try {
+        const textDecoder = new TextDecoder('utf-8');
+        const jsonString = textDecoder.decode(decryptedBytes);
+        
+        const jsonData = JSON.parse(jsonString);
+        
+        return jsonData;
+    } catch (error) {
+        console.error('Error parsing JSON data:', error);
+        throw new Error(`Failed to parse JSON: ${error.message}`);
+    }
+}
+
+    async addAllowlistEntry(allowlist: string, cap: string, moduleName: string, address: string) {
         const tx = new Transaction();
         tx.setGasBudget(100000000);
         await tx.moveCall({

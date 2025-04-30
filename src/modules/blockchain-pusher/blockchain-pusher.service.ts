@@ -75,7 +75,7 @@ export class BlockchainPusherService {
     await this.logger.log(`Pushed blob ID: ${blob.blobId}`);
     await this.logger.log(allowlist.allowlistId, allowlist.capId);
     await sleep(10000);
-    const tx = await this.walrusSealService.handlePublish(allowlist.capId, allowlist.allowlistId, "allowlist", blob.blobId);
+    const tx = await this.walrusSealService.handlePublish(allowlist.allowlistId, allowlist.capId, "allowlist", blob.blobId);
     await this.walrusSealService.signAndExecTxn(tx);
   }
 
@@ -110,6 +110,8 @@ export class BlockchainPusherService {
             console.error(`Allowlist entry not found for payload ID: ${payload.id}`);
             continue;
           }
+          console.log("allowlistid", allowlistEntry.allowlistId);
+          console.log("capid", allowlistEntry.capId);
           const txa = await this.walrusSealService.addAllowlistEntry(allowlistEntry.allowlistId, allowlistEntry.capId, module_name, this.wallet.publicKey);
           await this.walrusSealService.signAndExecTxn(txa);
           sleep(1000);
