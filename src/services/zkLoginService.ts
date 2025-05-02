@@ -13,7 +13,7 @@ const suiClient = new SuiClient({ url: FULLNODE_URL })
 interface EphemeralData {
   keypair: {
     publicKey: string
-    privateKey: number[] // เป็น number[] เพื่อเก็บค่า Uint8Array
+    privateKey: number[] 
   }
   maxEpoch: string
   randomness: string
@@ -34,15 +34,14 @@ export const generateEphemeralKeyPair = async () => {
       // Create a new ephemeral keypair
       const ephemeralKeyPair = new Ed25519Keypair()
   
-      // ✅ Get public key and encode as base64
+      //  Get public key and encode as base64
       const publicKeyBytes = ephemeralKeyPair.getPublicKey().toSuiBytes()
       
-      // Fix: Use Buffer shim from main.tsx
       const publicKey = Buffer.from(publicKeyBytes).toString("base64")
   
-      // ✅ Slice only the private (secret) key part (32 bytes), skip first byte
+      // Slice only the private (secret) key part (32 bytes), skip first byte
       const secretKey = ephemeralKeyPair.getSecretKey() // Uint8Array
-      const privateKeyBytes = secretKey.slice(1, 33) // ต้องเป็น 32 bytes เท่านั้น
+      const privateKeyBytes = secretKey.slice(1, 33) 
       
       // Fix: Explicitly convert Uint8Array values to numbers
       const privateKeyArray = Array.from(privateKeyBytes, byte => Number(byte))
@@ -82,20 +81,15 @@ export const buildOAuthUrl = (nonce: string) => {
   return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&response_type=id_token&redirect_uri=${REDIRECT_URL}&scope=openid&nonce=${nonce}`
 }
 
-// แก้ไขส่วนนี้เพื่อแก้ปัญหา CORS
 export const getUserSalt = async (jwt: string) => {
   try {
-    // แบบทดสอบใช้ค่าทดสอบเพื่อแก้ปัญหา CORS
-    // ในสถานการณ์จริง คุณต้องใช้ proxy server หรือ backend service ของคุณเอง
+
     console.log("Getting user salt with JWT:", jwt.substring(0, 10) + "...")
-    
-    // ใช้ค่า salt ทดสอบ - ในกรณีจริงควรเรียกผ่าน backend service
-    // แนะนำให้ใช้เฉพาะในการทดสอบ Devnet
+
     const mockSalt = "129390038577185583942388216820280642146";
     console.log("Using mock salt:", mockSalt);
     return mockSalt;
     
-    // วิธีนี้จะไม่ทำงานเนื่องจาก CORS - เก็บไว้เพื่อทราบ
     /*
     const response = await fetch("https://salt.api.mystenlabs.com/get_salt", {
       method: "POST",
@@ -126,8 +120,6 @@ export const getZkProof = async (
   salt: string,
 ) => {
   try {
-    // แบบทดสอบใช้ค่าทดสอบเพื่อแก้ปัญหา CORS
-    // ในสถานการณ์จริง คุณต้องใช้ proxy server หรือ backend service ของคุณเอง
     console.log("Getting ZK proof with inputs:", {
       jwtShort: jwt.substring(0, 10) + "...",
       extendedEphemeralPublicKey: extendedEphemeralPublicKey.substring(0, 10) + "...",
@@ -171,7 +163,6 @@ export const getZkProof = async (
     console.log("Using mock ZK proof");
     return mockZkProof;
     
-    // วิธีนี้จะไม่ทำงานเนื่องจาก CORS - เก็บไว้เพื่อทราบ
     /*
     const PROVER_URL = "https://prover-dev.mystenlabs.com/v1"
 
@@ -221,12 +212,8 @@ export const executeZkLogin = async (idToken?: string) => {
 
     const ephemeralData: EphemeralData = JSON.parse(ephemeralDataStr)
     
-    // Fix: Recreate Uint8Array from the number[] properly
     const privateKeyBytes = new Uint8Array(ephemeralData.keypair.privateKey)
     
-    // Fix: Create EdDSA keypair directly from the private key bytes
-    // The Ed25519Keypair.fromSecretKey expects 32 bytes, not 33 bytes with a prefix
-    // We stored only the 32 bytes (without the prefix) so we use them directly
     const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(privateKeyBytes)
 
     const userSalt = await getUserSalt(idToken)
