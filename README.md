@@ -2,18 +2,17 @@
 
 1. Clone the Repository
 
-git clone <your-repo-url>
-cd <project-folder>
+      git clone <your-repo-url>
+      cd <project-folder>
 
 2. Install Dependencies
 
-npm install
+      npm install
 
 3. Run the Development Server
 
-npm run dev
+      npm run dev
 
-The app will be running at http://localhost:5173
 
 🔐 Google Authentication
 
