@@ -1,78 +1,32 @@
-## Overview
-This project is a frontend application built using TypeScript. It aims to provide a seamless and interactive user experience with strong typing support to improve code quality and maintainability.
+🚀 Getting Started
 
-## Getting Started
+1. Clone the Repository
 
-### Prerequisites
-To run this project locally, you need to have the following installed:
+git clone <your-repo-url>
+cd <project-folder>
 
-- [Node.js](https://nodejs.org/) (version 12 or higher)
-- [npm](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
+2. Install Dependencies
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/your-repository.git
-   cd your-repository
-Install the dependencies:
-
-bash
-คัดลอก
-แก้ไข
 npm install
-# or if you're using yarn
-yarn install
-Development Mode
-To start the development server and view the application in your browser, run:
 
-bash
-คัดลอก
-แก้ไข
-npm start
-# or if you're using yarn
-yarn start
-This will open the application at http://localhost:3000 (or another port if configured differently).
+3. Run the Development Server
 
-Building for Production
-To build the project for production, run:
+npm run dev
 
-bash
-คัดลอก
-แก้ไข
-npm run build
-# or if you're using yarn
-yarn build
-This will create a dist/ folder with optimized production files.
+The app will be running at http://localhost:5173
 
-Folder Structure
-src/: Contains the main source code of the application
+🔐 Google Authentication
 
-components/: Reusable UI components
+⚠️ This project currently uses a hardcoded Google Client ID that belongs to the original developer (your Google account). If you are collaborating or testing locally, you may need to:
 
-services/: API calls and business logic
+Replace the Client ID in the code with your own (if you have a Google OAuth setup).
 
-styles/: CSS/SCSS files
+Or ask the original developer to enable your email in the list of allowed users in the Google Developer Console.
 
-public/: Static files such as images and icons
+🔗 Sui Wallet Integration
 
-tsconfig.json: TypeScript configuration file
+This project connects to the Sui Wallet extension. Make sure you have:
 
-Linting & Formatting
-This project uses ESLint and Prettier for maintaining code quality and formatting.
+The Sui Wallet browser extension installed.
 
-To lint the code, run:
-
-bash
-คัดลอก
-แก้ไข
-npm run lint
-# or if you're using yarn
-yarn lint
-To format the code, run:
-
-bash
-คัดลอก
-แก้ไข
-npm run format
-# or if you're using yarn
-yarn format
+A wallet connected before interacting with the blockchain features.
