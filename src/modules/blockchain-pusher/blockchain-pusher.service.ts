@@ -73,10 +73,18 @@ export class BlockchainPusherService {
     const encryptedData = await this.walrusSealService.encryptData(allowlist?.allowlistId, PACKAGE_ID, payload);
     const blob = await this.walrusSealService.pushData(encryptedData.encryptedBytes, 3, true, this.wallet.getKeypair()); 
     await this.logger.log(`Pushed blob ID: ${blob.blobId}`);
-    await this.logger.log(allowlist.allowlistId, allowlist.capId);
-    await sleep(10000);
+    await this.databaseService.allowlist.update({
+      where: {
+        id: allowlist.id,
+      },
+      data: {
+        blobId: blob.blobId,
+      },
+    });
     const tx = await this.walrusSealService.handlePublish(allowlist.allowlistId, allowlist.capId, "allowlist", blob.blobId);
-    await this.walrusSealService.signAndExecTxn(tx);
+    let result = await this.walrusSealService.signAndExecTxn(tx);
+    sleep(2500);
+    this.logger.log(`Transaction result: ${JSON.stringify(result)}`);
   }
 
   async createAllow() {

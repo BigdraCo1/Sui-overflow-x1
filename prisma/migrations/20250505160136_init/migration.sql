@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "TransactionStatus" AS ENUM ('SENT', 'PENDING', 'FAILED', 'WAITING_FOR_ALLOWLIST');
+CREATE TYPE "TransactionStatus" AS ENUM ('SENT', 'PENDING', 'FAILED', 'WAITING_FOR_ALLOWLIST', 'PUBLISHED');
 
 -- CreateTable
 CREATE TABLE "Batch" (
@@ -28,6 +28,7 @@ CREATE TABLE "Allowlist" (
     "payloadId" TEXT NOT NULL,
     "capId" TEXT NOT NULL,
     "allowlistId" TEXT NOT NULL,
+    "blobId" TEXT,
 
     CONSTRAINT "Allowlist_pkey" PRIMARY KEY ("id")
 );

@@ -12,6 +12,7 @@ enum TransactionStatus {
   PENDING
   FAILED
   WAITING_FOR_ALLOWLIST
+  PUBLISHED
 }
 
 model Batch {
@@ -41,6 +42,7 @@ model Allowlist {
   payloadId       String            @unique
   capId           String
   allowlistId     String
+  blobId          String?
 }
 
 model Metadata {
