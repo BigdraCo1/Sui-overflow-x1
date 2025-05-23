@@ -18,7 +18,7 @@ const networks = {
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
-    <SuiClientProvider networks={networks} defaultNetwork="devnet">
+    <SuiClientProvider networks={networks} defaultNetwork="testnet">
       <WalletProvider autoConnect={false}>
         <App />
       </WalletProvider>

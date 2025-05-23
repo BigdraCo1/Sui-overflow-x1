@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +12,7 @@ interface ShipmentCardProps {
   origin: string;
   destination: string;
   lastUpdated: string;
+  onViewDetail?: () => Promise<boolean>;
 }
 
 const ShipmentCard: React.FC<ShipmentCardProps> = ({
@@ -21,7 +21,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = ({
   status,
   origin,
   destination,
-  lastUpdated
+  lastUpdated,
+  onViewDetail
 }) => {
   const navigate = useNavigate();
 
@@ -48,6 +49,20 @@ const ShipmentCard: React.FC<ShipmentCardProps> = ({
         return <XCircle size={14} />;
       default:
         return null;
+    }
+  };
+
+  // Custom handler to ensure we don't navigate if signing fails
+  const handleViewDetail = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any default navigation
+    
+    if (onViewDetail) {
+      // If signing is successful, the navigation will happen in the parent component
+      // If it fails, we stay on the current page
+      await onViewDetail();
+    } else {
+      // Only navigate directly if there's no signing function
+      navigate(`/shipment/${id}`);
     }
   };
 
@@ -95,7 +110,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = ({
           variant="outline" 
           size="sm" 
           className="text-primary border-primary hover:bg-primary/10 hover:text-primary"
-          onClick={() => navigate(`/shipment/${id}`)}
+          onClick={handleViewDetail}
         >
           View details <ArrowRight size={14} className="ml-1" />
         </Button>
