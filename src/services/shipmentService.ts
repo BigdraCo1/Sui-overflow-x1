@@ -18,63 +18,6 @@ export interface Shipment {
   tempUnit?: string;
 }
 
-// MOCKUP DATA - Replace with real API data in production
-export const mockShipments: Shipment[] = [
-  {
-    id: 'MS-001-2025',
-    name: 'Insulin Regular',
-    status: 'active',
-    origin: 'San Francisco, CA',
-    destination: 'Chicago, IL',
-    lastUpdated: '2 hours ago',
-    startDate: '2025-04-05',
-    estimatedArrival: '2025-04-10',
-    minTemp: 2,
-    maxTemp: 8,
-    tempUnit: '°C',
-  },
-  {
-    id: 'MS-002-2025',
-    name: 'Antibiotics Batch 12',
-    status: 'completed',
-    origin: 'Boston, MA',
-    destination: 'Dallas, TX',
-    lastUpdated: 'Yesterday',
-  },
-  {
-    id: 'MS-003-2025',
-    name: 'Vaccines (COVID-19)',
-    status: 'issue',
-    origin: 'Atlanta, GA',
-    destination: 'Seattle, WA',
-    lastUpdated: '4 hours ago',
-  },
-  {
-    id: 'MS-004-2025',
-    name: 'Morphine Sulfate',
-    status: 'active',
-    origin: 'Denver, CO',
-    destination: 'Miami, FL',
-    lastUpdated: '1 hour ago',
-  },
-  {
-    id: 'MS-005-2025',
-    name: 'Asthma Medications',
-    status: 'active',
-    origin: 'Los Angeles, CA',
-    destination: 'New York, NY',
-    lastUpdated: '3 hours ago',
-  },
-  {
-    id: 'MS-006-2025',
-    name: 'Pain Relief Medicines',
-    status: 'completed',
-    origin: 'Phoenix, AZ',
-    destination: 'Detroit, MI',
-    lastUpdated: '2 days ago',
-  },
-
-];
 // *********************************************
 // REAL API INTEGRATION SECTION
 // Replace these functions with actual API calls
@@ -85,7 +28,6 @@ export const mockShipments: Shipment[] = [
 export const fetchShipments = async (address): Promise<Shipment[]> => {
   if (!address) {
     console.warn('No address provided to fetchShipments');
-    return mockShipments;
   }
   
   try {
@@ -108,7 +50,6 @@ export const fetchShipments = async (address): Promise<Shipment[]> => {
     
     if (!Array.isArray(rawData)) {
       console.error('API did not return an array:', rawData);
-      return mockShipments;
     }
     
 // Map the complex API response to the expected Shipment interface
@@ -147,7 +88,6 @@ const mappedShipments: Shipment[] = rawData.map(item => {
   } catch (error) {
     console.error('Error fetching shipments:', error);
     console.log('Falling back to mock data');
-    return mockShipments; // Return mock data on error
   }
 };
 
@@ -245,8 +185,6 @@ export const fetchShipmentById = async (id: string): Promise<Shipment | undefine
   // Using mockup data for now
   return new Promise((resolve) => {
     setTimeout(() => {
-      const shipment = mockShipments.find(s => s.id === id);
-      resolve(shipment);
     }, 500);
   });
 };
@@ -280,7 +218,6 @@ export const useShipments = (address) => {
     // Don't try to fetch if address is undefined or null
     if (!address) {
       console.log("No address provided, using mock data");
-      setShipments(mockShipments);
       setIsLoading(false);
       return;
     }
@@ -296,7 +233,6 @@ export const useShipments = (address) => {
           setShipments(data);
         } catch (fetchError) {
           console.warn('API fetch failed, using mock data:', fetchError);
-          setShipments(mockShipments); // Fall back to mock data on fetch error
           throw fetchError; // Rethrow to set the error state
         }
       } catch (err) {
