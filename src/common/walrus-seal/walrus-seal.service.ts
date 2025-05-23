@@ -6,8 +6,9 @@ import { fromHex, toHex } from '@mysten/sui/utils';
 import { Transaction } from '@mysten/sui/transactions';
 import { services, PACKAGE_ID, NUM_EPOCH, TTL_MIN } from '@/shared/constants';
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
-import { uploadFile, retrieveBlob } from '@/common/helper';
+import { uploadFile, retrieveBlob, storeBlob, readBlob } from '@/common/helper';
 import { MoveCallConstructor } from '@/shared/interfaces';
+import { blob } from 'stream/consumers';
 
 @Injectable()
 export class WalrusSealService {
@@ -16,7 +17,7 @@ export class WalrusSealService {
 
     constructor(private readonly wallet: Wallet) {
         this.client = new SealClient({
-            suiClient:  this.wallet.suiClient,
+            suiClient: this.wallet.suiClient,
             serverObjectIds: getAllowlistedKeyServers('testnet'),
             verifyKeyServers: false,
         });
@@ -65,7 +66,8 @@ export class WalrusSealService {
 
     async pushData(encryptedData: Uint8Array, epochs: number = NUM_EPOCH, deletable: boolean = false, keypair: Ed25519Keypair) {
         try {
-            return await uploadFile(encryptedData, epochs, deletable, keypair);
+            // return await uploadFile(encryptedData, epochs, deletable, keypair);
+            return await storeBlob(encryptedData, epochs);
         } catch (error) {
             console.error('Failed to push data:', error);
             throw new Error(`Data push failed: ${error.message || 'Unknown error'}`);
@@ -74,11 +76,11 @@ export class WalrusSealService {
 
     async constructMoveCall(packageId: string, moduleName: string, allowlistId: string): Promise<MoveCallConstructor> {
         return (tx: Transaction, id: string) => {
-          tx.setGasBudget(100000000);
-          tx.moveCall({
-            target: `${packageId}::${moduleName}::seal_approve`,
-            arguments: [tx.pure.vector('u8', fromHex(id)), tx.object(allowlistId)],
-          });
+            tx.setGasBudget(100000000);
+            tx.moveCall({
+                target: `${packageId}::${moduleName}::seal_approve`,
+                arguments: [tx.pure.vector('u8', fromHex(id)), tx.object(allowlistId)],
+            });
         };
     }
 
@@ -120,7 +122,8 @@ export class WalrusSealService {
         return tx;
     }
 
-    async retrieveBlob(blobId: string, txBytes: Uint8Array, allowlistIds: string[]) {
+    async retrieveBlob(blobId: string//, txBytes: Uint8Array, allowlistIds: string[]
+    ) {
         const sessionKey = new SessionKey({
             address: this.wallet.publicKey,
             packageId: PACKAGE_ID,
@@ -130,21 +133,15 @@ export class WalrusSealService {
         const msg = await sessionKey.getPersonalMessage()
         const sig = (await this.wallet.getKeypair().signPersonalMessage(msg)).signature;
         await sessionKey.setPersonalMessageSignature(sig);
-        
+
         let validDownload;
         try {
-            validDownload = await retrieveBlob(blobId);
+            // validDownload = await retrieveBlob(blobId);
+            validDownload = await readBlob(blobId);
         } catch (error) {
             console.error(`Error retrieving or parsing blob ${blobId}:`, error);
             throw new Error(`Failed to retrieve and parse blob: ${error.message}`);
         }
-
-        // await this.client.fetchKeys({
-		// 	ids: allowlistIds,
-		// 	txBytes,
-		// 	sessionKey,
-		// 	threshold: 2,
-		// });
 
         console.log("Valid downloads:", validDownload);
 
@@ -157,23 +154,83 @@ export class WalrusSealService {
         console.log("Transaction bytes:", txb);
 
         const decryptedBytes = await this.client.decrypt({
-			data: validDownload,
-			sessionKey,
-			txBytes: txb,
-		});
+            data: new Uint8Array(validDownload),
+            sessionKey,
+            txBytes: txb,
+        });
 
-    try {
-        const textDecoder = new TextDecoder('utf-8');
-        const jsonString = textDecoder.decode(decryptedBytes);
-        
-        const jsonData = JSON.parse(jsonString);
-        
-        return jsonData;
-    } catch (error) {
-        console.error('Error parsing JSON data:', error);
-        throw new Error(`Failed to parse JSON: ${error.message}`);
+        try {
+            const textDecoder = new TextDecoder('utf-8');
+            const jsonString = textDecoder.decode(decryptedBytes);
+
+            const jsonData = JSON.parse(jsonString);
+
+            return jsonData;
+        } catch (error) {
+            console.error('Error parsing JSON data:', error);
+            throw new Error(`Failed to parse JSON: ${error.message}`);
+        }
     }
-}
+
+    async retrieveBlobs(blobIds: string[]) {
+        const sessionKey = new SessionKey({
+            address: this.wallet.publicKey,
+            packageId: PACKAGE_ID,
+            ttlMin: TTL_MIN,
+        });
+    
+        const msg = await sessionKey.getPersonalMessage();
+        const sig = (await this.wallet.getKeypair().signPersonalMessage(msg)).signature;
+        await sessionKey.setPersonalMessageSignature(sig);
+    
+        // Initialize the array before pushing to it
+        const jsonDataList: any[] = [];
+        
+        // Use for...of to iterate over the values, not for...in
+        for (const blobId of blobIds) {
+            console.log(`Processing blob ID: ${blobId}`);
+            let validDownload;
+            try {
+                validDownload = await readBlob(blobId);
+            } catch (error) {
+                console.error(`Error retrieving or parsing blob ${blobId}:`, error);
+                throw new Error(`Failed to retrieve and parse blob: ${error.message}`);
+            }
+    
+            console.log(`Successfully downloaded blob: ${blobId}, data length: ${validDownload.length}`);
+            
+            try {
+                const encryptedObj = EncryptedObject.parse(new Uint8Array(validDownload));
+                const fullId = encryptedObj.id;
+                console.log(`Full ID for blob ${blobId}: ${fullId}`);
+    
+                const txb = await this.constructTxBytes("allowlist", [fullId]);
+                console.log(`Created transaction bytes for blob ${txb}`);
+    
+                const decryptedBytes = await this.client.decrypt({
+                    data: new Uint8Array(validDownload),
+                    sessionKey,
+                    txBytes: txb,
+                });
+                console.log(`Successfully decrypted blob ${blobId}, data length: ${decryptedBytes.length}`);
+    
+                const textDecoder = new TextDecoder('utf-8');
+                const jsonString = textDecoder.decode(decryptedBytes);
+                const jsonData = JSON.parse(jsonString);
+                
+                console.log(`Successfully parsed JSON data for blob ${blobId}`);
+                jsonDataList.push(jsonData);
+            } catch (error) {
+                console.error(`Error processing blob ${blobId}:`, error);
+                // Optional: continue with next blob instead of failing completely
+                // continue;
+                throw new Error(`Failed to process blob ${blobId}: ${error.message}`);
+            }
+        }
+    
+        console.log(`Successfully processed ${jsonDataList.length} blobs`);
+        return jsonDataList;
+    }
 
     async addAllowlistEntry(allowlist: string, cap: string, moduleName: string, address: string) {
         const tx = new Transaction();

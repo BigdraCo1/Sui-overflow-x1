@@ -14,13 +14,32 @@ export class BlockchainRetrieverController {
 
   @Get()
   retrieveAndDecrypt(
-    @Query('allowlistId') allowlistId: string,
+   // @Query('allowlistId') allowlistId: string, 
     @Query('blobId') blobId: string
   ) {
-    if (!allowlistId || !blobId) {
+    if (//!allowlistId ||
+     !blobId) {
       throw new BadRequestException('Both allowlistId and blobId query parameters are required');
     }
-    return this.blockchainRetrieverService.retrieveAndDecrypt(blobId, allowlistId);
+    return this.blockchainRetrieverService.retrieveAndDecrypt(blobId//, allowlistId
+
+    );
+  }
+
+  @Get('bundle')
+  async bundleBlob(@Query('transportationId') transportationId: string) {
+    if (!transportationId) {
+      throw new BadRequestException('transportationId query parameter is required');
+    }
+    return this.blockchainRetrieverService.bundleBlob(transportationId);
+  }
+
+  @Get('debug')
+  debugReadblob(@Query('blobId') blobId: string) {
+    if (!blobId) {
+      throw new BadRequestException('blobId query parameter is required');
+    }
+    return this.blockchainRetrieverService.debugReadblob(blobId);
   }
 
   @Patch(':id')
@@ -28,8 +47,8 @@ export class BlockchainRetrieverController {
     return this.blockchainRetrieverService.update(+id, updateBlockchainRetrieverDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.blockchainRetrieverService.remove(+id);
+  @Get(':id')
+  retriveAccountTrasportation(@Param('id') id: string) {
+    return this.blockchainRetrieverService.retriveAccountTrasportation(id);
   }
 }

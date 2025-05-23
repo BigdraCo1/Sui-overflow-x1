@@ -9,9 +9,7 @@ import { sleep } from '@/common/helper';
 @Injectable()
 export class CronService {
   private readonly logger = new Logger(CronService.name);
-  // Add a lock flag to prevent concurrent executions
   private isProcessing = false;
-  // Add a timestamp to track when processings started
   private processingStartTime = 0;
 
   constructor(
@@ -44,10 +42,12 @@ export class CronService {
       
       // Find batches and lock them via transaction
       const batches = await this.databaseService.$transaction(async (prisma) => {
-        // Find pending batches
+        // Find pending batches and failed batches (for retry)
         const pendingBatches = await prisma.batch.findMany({
           where: {
-            status: PrismaTransactionStatus.PENDING,
+            status: {
+              in: [PrismaTransactionStatus.PENDING, PrismaTransactionStatus.FAILED]
+            },
           },
           include: {
             payloads: {
@@ -65,7 +65,13 @@ export class CronService {
             await prisma.batch.update({
               where: { id: batch.id },
               data: { 
-                status: 'WAITING_FOR_ALLOWLIST'
+                status: 'WAITING_FOR_ALLOWLIST',
+                payloads: {
+                  updateMany: {
+                    where: { id: { in: batch.payloads.map(p => p.id) } },
+                      data: { status: 'WAITING_FOR_ALLOWLIST' }
+                    }
+                }
               }
             });
           }
@@ -75,10 +81,15 @@ export class CronService {
       });
 
       if (batches.length === 0) {
-        this.logger.log('No pending batches found.');
+        this.logger.log('No pending or failed batches found.');
       } else {
         for (const batch of batches) {
-          this.logger.log(`Pushing walrus seal for batch ID: ${batch.id}`);
+          // Log if this is a retry attempt
+          if (batch.status === PrismaTransactionStatus.FAILED) {
+            this.logger.log(`Retrying failed batch ID: ${batch.id}`);
+          } else {
+            this.logger.log(`Pushing walrus seal for batch ID: ${batch.id}`);
+          }
           
           // Flag to track if any payloads failed
           let hasErrors = false;
@@ -109,9 +120,14 @@ export class CronService {
               });
               
               const createdObjects = txDetails.objectChanges?.filter(change => change.type === 'created') || [];
-              const createdObjectIds = createdObjects.map(obj => obj.objectId);
-              
-              if (createdObjectIds.length < 2) {
+              const createdObjectIds = Object.fromEntries(
+                createdObjects.map(obj => [obj.objectType.split("::")[2], obj.objectId])
+              );
+              this.logger.log(`Created objects: ${JSON.stringify(createdObjectIds)}`);
+
+
+              if (createdObjectIds["Cap"] === undefined || createdObjectIds["Allowlist"] === undefined) {
+                this.logger.error(`Expected at least 2 created objects but got fewer: ${JSON.stringify(createdObjectIds)}`);
                 throw new Error('Expected at least 2 created objects but got fewer');
               }
               
@@ -121,23 +137,17 @@ export class CronService {
                 },
                 create: {
                   payloadId: payload.id,
-                  capId: createdObjectIds[0],
-                  allowlistId: createdObjectIds[1],
+                  capId: createdObjectIds["Cap"],
+                  allowlistId: createdObjectIds["Allowlist"],
                 },
                 update: {
-                  capId: createdObjectIds[0],
-                  allowlistId: createdObjectIds[1],
+                  capId: createdObjectIds["Cap"],
+                  allowlistId: createdObjectIds["Allowlist"],
                 }
               });
             } catch (error) {
               hasErrors = true;
               this.logger.error(`Error processing payload: ${error.message}`);
-              
-              // Optional: Update the individual payload status if you want granular tracking
-              // await this.databaseService.payload.update({
-              //   where: { id: payload.id },
-              //   data: { status: 'ERROR' } // Add status field to Payload model if needed
-              // });
             }
           }
           

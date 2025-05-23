@@ -35,3 +35,16 @@ export async function retrieveBlob(blobId: string) {
 
 // 	console.log(resultString);
 // })();
+export const readBlob = async (blobId: string) => {
+    return await fetch(`https://aggregator.walrus-testnet.walrus.space/v1/blobs/${blobId}`, {
+      method: 'GET',
+    }).then((response) => {
+      if (response.status === 200) {
+        console.log("blob stored successfully");
+        console.log("response: ", response);
+        return response.arrayBuffer();
+      } else {
+        throw new Error('Something went wrong when storing the blob!');
+      }
+    });
+};

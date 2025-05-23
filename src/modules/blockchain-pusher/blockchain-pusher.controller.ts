@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { BlockchainPusherService } from './blockchain-pusher.service';
 import { CreateBlockchainPusherDto } from './dto/create-blockchain-pusher.dto';
 
@@ -17,8 +17,8 @@ export class BlockchainPusherController {
   }
 
   @Get('allow')
-  createAllow() {
-    return this.blockchainPusherService.createAllow();
+  createAllow(@Query('allowlistId') allowlistId: string, @Query('address') address: string) {
+    return this.blockchainPusherService.createAllow(allowlistId, address);
   }
 
   @Get(':id')

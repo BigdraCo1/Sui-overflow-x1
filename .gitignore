@@ -43,7 +43,8 @@ lerna-debug.log*
 .env.local
 
 # keypair
-keypair.json
+keypair*.json
+*.key
 
 # temp directory
 .temp

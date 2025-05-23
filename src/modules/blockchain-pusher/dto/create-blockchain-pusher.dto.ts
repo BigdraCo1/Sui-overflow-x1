@@ -19,6 +19,15 @@ export class MetadataDto {
 
   @IsString()
   data_hash: string;
+
+  @IsString()
+  name: string;
+
+  @IsString()
+  origin: string;
+
+  @IsString()
+  destination: string;
 }
 
 export class PayloadItemDto {

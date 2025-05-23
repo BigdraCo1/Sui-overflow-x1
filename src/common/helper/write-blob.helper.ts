@@ -20,6 +20,10 @@ const suiClient = new SuiClient({
 const walrusClient = new WalrusClient({
 	network: 'testnet',
 	suiClient,
+	packageConfig: {
+		systemObjectId: '0x98ebc47370603fe81d9e15491b2f1443d619d1dab720d586e429ed233e1255c1',
+		stakingPoolId: '0x20266a17b4f1a216727f3eef5772f8d486a9e3b5e319af80a5b75809c035561d',
+	},
 	storageNodeClientOptions: {
 		timeout: 60_000,
 	},
@@ -38,3 +42,20 @@ export async function uploadFile(encryptedData: Uint8Array, epochs: number = 3, 
         signer: keypair,
     });
 }
+
+export const storeBlob = async (encryptedData: Uint8Array, epochs: number = 3) => {
+    return fetch(`https://publisher.walrus-testnet.walrus.space/v1/blobs?epochs=${epochs}`, {
+      method: 'PUT',
+      body: encryptedData,
+    }).then((response) => {
+      if (response.status === 200) {
+        console.log("blob stored successfully");
+        console.log("response: ", response);
+        return response.json().then((info) => {
+          return { info };
+        });
+      } else {
+        throw new Error('Something went wrong when storing the blob!');
+      }
+    });
+  };

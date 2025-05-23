@@ -7,6 +7,7 @@ import { Batch, Payload } from '@prisma/client';
 import { WalrusSealService } from '@/common/walrus-seal/walrus-seal.service';
 import { sleep } from '@/common/helper';
 import { PACKAGE_ID } from '@/shared/constants';
+import { decryptData } from '@/common/helper';
 
 @Injectable()
 export class BlockchainPusherService {
@@ -14,8 +15,35 @@ export class BlockchainPusherService {
   constructor(private readonly wallet: Wallet, private readonly databaseService: DatabaseService, private readonly walrusSealService: WalrusSealService) { }
 
   async deployVault(createBlockchainPusherDto: CreateBlockchainPusherDto): Promise<Batch> {
-    // Create the batch with nested payloads
-    return this.databaseService.batch.create({
+    // First, process all device_ids and create/update Transportation records
+    for (const item of createBlockchainPusherDto.batch) {
+      const deviceId = item.metadata.device_id;
+
+      // Try to find existing Transportation with this device_id
+      const existingTransportation = await this.databaseService.transportation.findUnique({
+        where: {
+          device_id: deviceId,
+        },
+      });
+
+      if (!existingTransportation) {
+        // If not found, create a new Transportation record
+        await this.databaseService.transportation.create({
+          data: {
+            device_id: deviceId,
+            name: item.metadata.name,
+            origin: item.metadata.origin,
+            destination: item.metadata.destination
+          }
+        });
+        this.logger.log(`Created new Transportation for device_id: ${deviceId}`);
+      } else {
+        this.logger.log(`Using existing Transportation for device_id: ${deviceId}`);
+      }
+    }
+
+    // Then create the batch with nested payloads
+    const batch = await this.databaseService.batch.create({
       data: {
         // Create all payloads in the batch
         payloads: {
@@ -26,13 +54,12 @@ export class BlockchainPusherService {
               create: {
                 device_id: item.metadata.device_id,
                 timestamp: new Date(item.metadata.timestamp * 1000), // Convert Unix timestamp to Date
-                data_hash: item.metadata.data_hash
+                data_hash: item.metadata.data_hash,
               }
             }
           }))
         }
       },
-      // Include the created payloads in the response
       include: {
         payloads: {
           include: {
@@ -41,6 +68,32 @@ export class BlockchainPusherService {
         }
       }
     });
+
+    // After creating the batch, link each metadata record to its corresponding Transportation
+    for (const payload of batch.payloads) {
+      if (payload.metadata) {
+        const transportation = await this.databaseService.transportation.findUnique({
+          where: {
+            device_id: payload.metadata.device_id
+          }
+        });
+
+        if (transportation) {
+          // Link the metadata to the transportation
+          await this.databaseService.metadata.update({
+            where: {
+              id: payload.metadata.id
+            },
+            data: {
+              transportationId: transportation.id
+            }
+          });
+          this.logger.log(`Linked metadata ID ${payload.metadata.id} to Transportation ID ${transportation.id}`);
+        }
+      }
+    }
+
+    return batch;
   }
 
   async balance() {
@@ -53,7 +106,7 @@ export class BlockchainPusherService {
   async pushBatch(allowlistId: string) {
     const allowlist = await this.databaseService.allowlist.findFirst({
       where: {
-        id: allowlistId,
+        allowlistId: allowlistId,
       }
     });
     const payload = await this.databaseService.payload.findFirst({
@@ -70,102 +123,166 @@ export class BlockchainPusherService {
     if (!allowlist?.allowlistId) {
       throw new Error(`Allowlist ID not found for payload ID: ${payload.id}`);
     }
-    const encryptedData = await this.walrusSealService.encryptData(allowlist?.allowlistId, PACKAGE_ID, payload);
-    const blob = await this.walrusSealService.pushData(encryptedData.encryptedBytes, 3, true, this.wallet.getKeypair()); 
-    await this.logger.log(`Pushed blob ID: ${blob.blobId}`);
+    this.logger.log(`Debugging encrypted data: ${payload.encrypted_data}`);
+    const decryptedData = await decryptData(payload.encrypted_data);
+    const parsedData = JSON.parse(decryptedData.toString());
+    this.logger.log('Decrypted data:', parsedData);
+    const encryptedData = await this.walrusSealService.encryptData(allowlist?.allowlistId, PACKAGE_ID, parsedData);
+    this.logger.log('Encrypted data:', encryptedData);
+    const blob = await this.walrusSealService.pushData(encryptedData.encryptedBytes, 3, true, this.wallet.getKeypair());
+    await this.logger.log(`Pushed blob ID: ${blob.info.newlyCreated.blobObject.blobId}`);
     await this.databaseService.allowlist.update({
       where: {
-        id: allowlist.id,
+        allowlistId: allowlist.allowlistId,
       },
       data: {
-        blobId: blob.blobId,
+        blobId: blob.info.newlyCreated.blobObject.blobId,
       },
     });
-    const tx = await this.walrusSealService.handlePublish(allowlist.allowlistId, allowlist.capId, "allowlist", blob.blobId);
+    const tx = await this.walrusSealService.handlePublish(allowlist.allowlistId, allowlist.capId, "allowlist", blob.info.newlyCreated.blobObject.blobId);
     let result = await this.walrusSealService.signAndExecTxn(tx);
     sleep(2500);
     this.logger.log(`Transaction result: ${JSON.stringify(result)}`);
-  }
-
-  async createAllow() {
-    const errorPayloads: Payload[] = [];
-    const batches = await this.databaseService.batch.findMany({
+    await this.databaseService.payload.update({
       where: {
-        status: 'WAITING_FOR_ALLOWLIST',
+        id: payload.id,
+      },
+      data: {
+        status: "PUBLISHED",
+      },
+    })
+    const batch = await this.databaseService.batch.findFirst({
+      where: {
+        payloads: {
+          some: {
+            id: payload.id,
+          }
+        }
       },
       include: {
-        payloads: {
-          include: {
-            metadata: true,
-          },
-        },
-      },
+        payloads: true
+      }
     });
-    const module_name = "allowlist";
-    for (const batch of batches) {
-      for (const payload of batch.payloads) {
-        const allowlistEntry = await this.databaseService.allowlist.findFirst({
-          where: {
-            payloadId: payload.id,
-          },
-        });
-        try {
-          if (!payload.metadata) {
-            console.error(`Payload metadata is missing for batch ID: ${batch.id}`);
-            continue;
-          }
-          if (!allowlistEntry) {
-            console.error(`Allowlist entry not found for payload ID: ${payload.id}`);
-            continue;
-          }
-          console.log("allowlistid", allowlistEntry.allowlistId);
-          console.log("capid", allowlistEntry.capId);
-          const txa = await this.walrusSealService.addAllowlistEntry(allowlistEntry.allowlistId, allowlistEntry.capId, module_name, this.wallet.publicKey);
-          await this.walrusSealService.signAndExecTxn(txa);
-          sleep(1000);
-        } catch (error) {
-          console.error(`Error processing payload: ${error}`);
-          errorPayloads.push(payload);
-        }
-      }
-      while (errorPayloads.length > 0) {
-        await this.logger.log(errorPayloads);
-        for (const payload of errorPayloads) {
-          try {
-            const allowlistEntry = await this.databaseService.allowlist.findFirst({
-              where: {
-                payloadId: payload.id,
-              },
-            });
-            if (!allowlistEntry) {
-              console.error(`Allowlist entry not found for payload ID: ${payload.id}`);
-              continue;
-            }
-            await this.logger.log(`Retrying payload ID: ${payload.id}`);
-            const txb = await this.walrusSealService.addAllowlistEntry(allowlistEntry.allowlistId, allowlistEntry.capId, module_name, this.wallet.publicKey);
-            await this.walrusSealService.signAndExecTxn(txb);
-            await sleep(2500);
-            errorPayloads.splice(errorPayloads.indexOf(payload), 1);
-          } catch (error) {
-            console.error(`Error processing payload: ${error}`);
-          }
-        }
-      }
-      if (!errorPayloads.length) {
+
+    if (batch) {
+      const allPublished = batch.payloads.every(payload => payload.status === "PUBLISHED");
+
+      if (allPublished) {
         await this.databaseService.batch.update({
-          where: { id: batch.id },
+          where: {
+            id: batch.id
+          },
           data: {
-            status: 'SENT',
-            pushedAt: new Date(),
-          },
-          include: {
-            payloads: {
-              include: {
-                metadata: true,
-              },
-            },
-          },
+            status: "PUBLISHED"
+          }
         });
+        this.logger.log(`Batch ${batch.id} status updated to PUBLISHED`);
+      }
+    }
+  }
+
+  async createAllow(allowlistId: string, address: string) {
+    const allowlist = await this.databaseService.allowlist.findFirst({
+      where: {
+        allowlistId: allowlistId,
+      },
+      include: {
+        payload: {
+          include: {
+            metadata: {
+              include: {
+                transportation: true,
+              }
+            }
+          }
+        }
+      }
+    });
+    if (!allowlist) {
+      throw new Error(`Allowlist not found for ID: ${allowlistId}`);
+    }
+    const tx = await this.walrusSealService.addAllowlistEntry(allowlist.allowlistId, allowlist.capId, "allowlist", address);
+    let result = await this.walrusSealService.signAndExecTxn(tx);
+    this.logger.log(`allowlistId: ${allowlist.allowlistId} == ${allowlistId}`);
+    sleep(2500);
+    this.logger.log(`Transaction result: ${JSON.stringify(result)}`);
+    const account = await this.databaseService.account.findFirst({
+      where: {
+        address: address,
+      },
+      include: {
+        transportationList: true,
+      }
+    });
+
+    if (!account) {
+      const transportation = allowlist.payload.metadata?.transportation;
+      if (transportation) {
+        await this.databaseService.account.create({
+          data: {
+            address: address,
+            transportationList: {
+              connect: [{ id: transportation.id }],
+            },
+          }
+        });
+      }
+    } else {
+      if (allowlist.payload.metadata?.transportation && !account.transportationList.includes(allowlist.payload.metadata.transportation)) {
+        const updatedAllowlistIds = [...account.transportationList, allowlist.payload.metadata.transportation];
+        await this.databaseService.account.update({
+          where: {
+            address: address,
+          },
+          data: {
+            transportationList: {
+              connect: updatedAllowlistIds.map(transportation => ({ id: transportation.id })),
+            },
+          }
+        });
+      }
+    }
+    const payloadsToUpdate = await this.databaseService.payload.findFirst({
+      where: {
+        allowlist: allowlist
+      }
+    });
+    if (payloadsToUpdate) {
+      await this.databaseService.payload.update({
+        where: {
+          id: payloadsToUpdate.id
+        },
+        data: {
+          status: "SENT",
+        },
+      });
+      const batch = await this.databaseService.batch.findFirst({
+        where: {
+          payloads: {
+            some: {
+              id: payloadsToUpdate.id,
+            }
+          }
+        },
+        include: {
+          payloads: true
+        }
+      });
+      if (batch) {
+        const allSentOrPublished = batch.payloads.every(p =>
+          p.status === "SENT"
+        );
+        if (allSentOrPublished) {
+          await this.databaseService.batch.update({
+            where: {
+              id: batch.id
+            },
+            data: {
+              status: "SENT"
+            }
+          });
+          this.logger.log(`Batch ${batch.id} status updated to SENT`);
+        }
       }
     }
   }
