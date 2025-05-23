@@ -1,0 +1,84 @@
+{
+  "batch": [
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006530,
+        "data_hash": "f1ab82ebfa428d9a2c10610519d99e8ba58f707cc9a5fb2845ef73398eec8d56"
+      },
+      "encrypted_data": "cVSIB+qmGPf/JFi5fa6mVfz5ylgKl6Rao25TWcuOtHtSWusItXD2q9AC0TMej9sMuirIB8RA3rJYbjhGmWTu6VMGnjt1cuXp+yZR7fseNUt+1/eRY/FDbcPYcQWynI7Nd1er9yIxkH6OH93GJkKruZsOJ82YIS2Up9iRy0dukapUZaIUKTP0l14Q029kD0PapviGaXPqfUSZ/HQaQg=="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006531,
+        "data_hash": "4c72411190102b7b9b4af6e730bb6524238d491446d01730cfe46025329317c7"
+      },
+      "encrypted_data": "ObHmwwoUdUrDmXWFA6p3mbhhBBxcFIsJolI8fPxfjshpvHTtG41b4Vrd3WTLm4VItAFwIgpwww49NzG7tn/VZ34fMVVgCJYxCuIDkAkiq3eKyliTq6IiHEp1uce3uybwEcSGNPtTomuYfWTrqTUhewPv3jaT1a9eDARIHP9BnCOgS9a7q2FdOfoSXiscfGSbJuib0YNeP/f74/zdNw=="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006532,
+        "data_hash": "544af93d49b6dd35eccbb6d4e32a61424014c1fae2c4bd8b58035caae396ff1b"
+      },
+      "encrypted_data": "jAleDqNt3dVg3ISxv18RfzARXz9dCTZaOIMl5ScP2i3ic8j5grzrjeRG1TB+UHT9tJ/7AvsFzTa6OBItuhWZ97M1rqmQ1iNmKZiWZ7E8yOolprydWp9ZYp295eOXM62OfI/gjpKN4w0lZwCAnh0FfYcTAXFoqX0c2K6qpJbcPxQ0B9OarWK8OQvTjBEl4f+Wc61O4KNJM0l+ahGqc1g="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006533,
+        "data_hash": "a030aabc26bc1d373809c965a61bdbe6d524596e626d29d9ad1c2420e91ff473"
+      },
+      "encrypted_data": "wdUTYjsHrollFNTIgL1bP1kN2Jz32dulCVIZq2CmhvomjE6gIekzIWBr9QELlA8gCmVbSV7WtH0BKzuVgabgHAbBUJn/t+Ls75gBJxcZGBsXZZYbwH31ecOV+d2T11gE8Lng0A1Ag9ZkYPEwyPdjN0xSMTTuEeBUGYp/394ZhNwUIVjvRh2HxNI+N0veXm6kjsB+razThV9cIXkZfQw="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006534,
+        "data_hash": "4ba28ec154f04e7c94a2f5122fedf3121a5800dbb45b438a0c615f316696f86a"
+      },
+      "encrypted_data": "Ey2rQ7fDneU9VDH0GwSnd2+f1zIYhtcIQqHK52Q1+72+8+tic383DMdStTppZGtocsS/fjjelzRB+V8ifkiZzL3LQzPAGmnGz3DDo+6iRVT9slcqa4LPmPVLcJPKbHkBRM/6agC8j7dZfFDViZ2pb/FglzmgFHUcqfQCB07nUQfvFIXHGcwLjZk2vpSW8fMtXn1guKF5N82Uwmc="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006535,
+        "data_hash": "d416cd85e57b5ac80d1cc21f3f6522e4d4c4e0a45705c39076afecce44d15ae7"
+      },
+      "encrypted_data": "QVuAzLsCtU3lRFN3QepXnXi5xq9lK3TvMx2d8Uh2xYrRlMTiCk9xLcrqm8FUNgFPLPG1Se7ye920hB5VjAWCd42NJe6WaY6qiQsg99xvi3XIQkzUfc8ZSssbeE7/nRySYQdDk4AvjmqoctqMcSTRoXM5+hXqbg5oiRSYwTGaqJsZAAq75BAlQ5hXggshWJX2Ye5C54Q0WTF8Gl5UdA=="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006536,
+        "data_hash": "a89bfb73c82336573c23ea951204698c0271a69e808108d01871f94ff1da3309"
+      },
+      "encrypted_data": "Wyrv/nGqLh+a/KZ8E2h4RRdMa1j2cY9WratTMMQ4T3RBHbba4QYLuPe+mV+4bIeLEkUFEcb+2AmVvHxYmcWymSxlBtSc6DQ7t8klrH2wS3Lfu9TIaai/zC7SLnj03s+NQm8Fa6LltL562oaRIOQT5+XEH+d51F7VAJ0QyHM7RzgHApNpmKJSRGJdhiKZsIddYE2LnSI7RJkgIiDgN1A="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006537,
+        "data_hash": "0657b806257d464569d9eacf288bf0fb772bacb5c60fb60bebbcf50d8217d943"
+      },
+      "encrypted_data": "B+WTs4AMyYWyjxFEPdgtyqC/HLbwLm1hqRHkDu8WOViSZG9RNsvOE8eELJmAU0I52QDqB92zIc8OLzMkcQz62liPST2SyVMcDFN98Wz9zzg9fbgOhHsdLjWeOaDl1HmKrLwAD2/fdMYNplnR/Fpl5QJfpOywAN4KtSfBePW1/X/S/1syOKgQLB1wIZMPe7M3B3QT4AYki5a25/AtsRs="
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006538,
+        "data_hash": "524021aa693c392796faae9dc1dce4af9a5482402a75472b77721f4d4f25f819"
+      },
+      "encrypted_data": "bwrE9Duee6p636GDPib9PoC8+2+J8tmmcOLxJh6Amc1RoDkwJW5OPIWZ8PibRcR1VMCtFoN/APR9rUyhw0kOJQ2pycue422LoTpZ/HPXvundc40WFFS0zhn8ebVYnCDRjlS+F4EOaNfLWdHKe1wrQdPf8xkr4PAxwFrywgN0l0H4IRsHGBetItgMuvdhcjV5IS/0frrWxXyBfRtKVCiG"
+    },
+    {
+      "metadata": {
+        "device_id": "rpi-rust-001",
+        "timestamp": 1744006539,
+        "data_hash": "2763db80d9e0ef0fdfa2e96c6bf6ce752cc592115154c226fe0ca5ae33c77192"
+      },
+      "encrypted_data": "uaVJB4XnbAi26LM2K1qSqL/TtuNLvppABzc18bQ60bVRVBLCdK0KmTXzIQxDMZ9YdO1XYquFtN6vn0hVTUWepoZM6Za0PbxiBzdtiy7sRDhr87DtDq5/Gp7OYgaWU1yJSjILmYOa4dUY9f3CIVLy+Ws66TVmCEwqatqU2KN/0ju/T2Mh6ffeDEMEDwz0xEfp0WBONpYURKlz2ZcBsFM="
+    }
+  ]
+}

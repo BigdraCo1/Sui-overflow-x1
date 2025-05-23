@@ -1,0 +1,52 @@
+[
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006530,
+    "data_hash": "f1ab82ebfa428d9a2c10610519d99e8ba58f707cc9a5fb2845ef73398eec8d56"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006531,
+    "data_hash": "4c72411190102b7b9b4af6e730bb6524238d491446d01730cfe46025329317c7"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006532,
+    "data_hash": "544af93d49b6dd35eccbb6d4e32a61424014c1fae2c4bd8b58035caae396ff1b"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006533,
+    "data_hash": "a030aabc26bc1d373809c965a61bdbe6d524596e626d29d9ad1c2420e91ff473"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006534,
+    "data_hash": "4ba28ec154f04e7c94a2f5122fedf3121a5800dbb45b438a0c615f316696f86a"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006535,
+    "data_hash": "d416cd85e57b5ac80d1cc21f3f6522e4d4c4e0a45705c39076afecce44d15ae7"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006536,
+    "data_hash": "a89bfb73c82336573c23ea951204698c0271a69e808108d01871f94ff1da3309"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006537,
+    "data_hash": "0657b806257d464569d9eacf288bf0fb772bacb5c60fb60bebbcf50d8217d943"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006538,
+    "data_hash": "524021aa693c392796faae9dc1dce4af9a5482402a75472b77721f4d4f25f819"
+  },
+  {
+    "device_id": "rpi-rust-001",
+    "timestamp": 1744006539,
+    "data_hash": "2763db80d9e0ef0fdfa2e96c6bf6ce752cc592115154c226fe0ca5ae33c77192"
+  }
+]
