@@ -1,0 +1,2 @@
+export const PACKAGE_ID = '0x0fa339e890387266ca3463d2277d2670abb9095351bd6d7c894e7a076c320d3d'; // The package ID for the Sui package
+export const OBJECT_ID = '0x2'; // The object ID for the Sui object
