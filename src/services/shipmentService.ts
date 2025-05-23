@@ -10,6 +10,7 @@ export interface Shipment {
   origin: string;
   destination: string;
   lastUpdated: string;
+  updatedAt: string;   // Raw timestamp from backend
   startDate?: string;
   estimatedArrival?: string;
   minTemp?: number;
@@ -130,6 +131,7 @@ const mappedShipments: Shipment[] = rawData.map(item => {
     origin: item.origin || 'Unknown origin',
     destination: item.destination || 'Unknown destination',
     lastUpdated: formatRelativeTime(item.updatedAt) || 'Unknown',
+    updatedAt: item.updatedAt, // Store the raw updatedAt date
     // Use createdAt as startDate and calculate estimatedArrival
     startDate: createdDate ? formatDate(createdDate.toISOString()) : undefined,
     estimatedArrival: estimatedDate ? formatDate(estimatedDate.toISOString()) : undefined,
@@ -150,7 +152,7 @@ const mappedShipments: Shipment[] = rawData.map(item => {
 };
 
 // Helper function to format timestamps into relative time (e.g., "2 hours ago")
-function formatRelativeTime(dateString: string): string {
+export function formatRelativeTime(dateString: string): string {
   if (!dateString) return 'Unknown';
   
   try {
@@ -252,36 +254,7 @@ export const fetchShipmentById = async (id: string): Promise<Shipment | undefine
 // END OF REAL API INTEGRATION SECTION
 // *********************************************
 
-// Helper functions for mockup data visualization
-export const generateTemperatureData = () => {
-  const data = [];
-  const now = new Date();
-  const minThreshold = 2; // 2°C
-  const maxThreshold = 8; // 8°C
-  
-  for (let i = 0; i < 24; i++) {
-    const time = new Date(now);
-    time.setHours(time.getHours() - (23 - i));
-    
-    // สร้างค่าที่บางครั้งจะออกนอกช่วง
-    let value;
-    if (i === 5 || i === 18) {
-      // ค่านอกช่วงเพื่อการสาธิต
-      value = i === 5 ? 1.5 : 8.5;
-    } else {
-      // ค่าปกติในช่วง (พร้อมความแปรปรวนบางส่วน)
-      value = minThreshold + (Math.random() * (maxThreshold - minThreshold));
-    }
-    
-    data.push({
-      time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      value: parseFloat(value.toFixed(1)),
-    });
-  }
-  
-  return data;
-};
-
+// Calculate data quality
 export const calculateDataQuality = (data: any[], minThreshold: number, maxThreshold: number) => {
   let normal = 0;
   let abnormal = 0;
@@ -340,10 +313,15 @@ export const useShipments = (address) => {
   return { shipments, isLoading, error };
 };
 
-export const useShipmentDetail = (id: string, existingShipment?: Shipment) => {
-  // Use the existing shipment data if provided
+// Updated useShipmentDetail hook
+export const useShipmentDetail = (
+  id: string, 
+  existingShipment?: Shipment, 
+  sensorData?: any[],
+  preformattedTempData?: any[]
+) => {
   const [shipment, setShipment] = useState<Shipment | undefined>(existingShipment);
-  const [temperatureData, setTemperatureData] = useState<any[]>([]);
+  const [temperatureData, setTemperatureData] = useState<any[]>(preformattedTempData || []);
   const [dataQuality, setDataQuality] = useState<{ normal: number; abnormal: number }>({ normal: 0, abnormal: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -354,31 +332,81 @@ export const useShipmentDetail = (id: string, existingShipment?: Shipment) => {
         setIsLoading(true);
         
         // If we don't have existing shipment data, fetch it
-        // This is a fallback in case the hook is used directly
         if (!shipment) {
           const shipmentData = await fetchShipmentById(id);
           setShipment(shipmentData);
         }
+
+        let tempData = [];
         
-        // Fetch temperature data from API
-        const sensorData = await fetchShipmentSensorData(id);
+        // Priority 1: Use preformatted temperature data if available
+        if (preformattedTempData && preformattedTempData.length > 0) {
+          console.log('Using preformatted temperature data:', preformattedTempData.length, 'points');
+          tempData = preformattedTempData;
+        }
+        // Priority 2: Format sensor data if available
+        else if (sensorData && sensorData.length > 0) {
+          console.log('Formatting provided sensor data:', sensorData.length, 'points');
+          
+          tempData = sensorData.map(reading => {
+            try {
+              const timestamp = reading.timestamp;
+              const date = new Date(timestamp);
+              
+              return {
+                time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: date.toLocaleDateString(),
+                value: Number(reading.readings?.temperature || 0),
+                humidity: Number(reading.readings?.humidity || 0),
+                pressure: Number(reading.readings?.pressure || 0),
+              };
+            } catch (err) {
+              console.error('Error formatting sensor reading:', err, reading);
+              return {
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: new Date().toLocaleDateString(),
+                value: 0,
+                humidity: 0,
+                pressure: 0
+              };
+            }
+          });
+          
+          console.log('Formatted temperature data:', tempData);
+        }
+        // Priority 3: Fetch from API
+        else {
+          console.log('Fetching sensor data from API for:', id);
+          const fetchedData = await fetchShipmentSensorData(id);
+          
+          if (fetchedData && fetchedData.length > 0) {
+            console.log('API returned sensor data:', fetchedData.length, 'points');
+            
+            tempData = fetchedData.map(reading => {
+              const date = new Date(reading.timestamp);
+              return {
+                time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: date.toLocaleDateString(),
+                value: Number(reading.readings?.temperature || 0),
+                humidity: Number(reading.readings?.humidity || 0),
+                pressure: Number(reading.readings?.pressure || 0)
+              };
+            });
+          } else {
+            console.warn('No sensor data available');
+            // No longer fallback to generated mock data
+            tempData = [];
+          }
+        }
         
-        // Format the temperature data for display
-        const formattedData = sensorData.map(reading => ({
-          time: new Date(reading.timestamp * 1000).toLocaleTimeString([], { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }),
-          value: reading.readings?.temperature || 0
-        }));
+        // Set the temperature data
+        setTemperatureData(tempData);
         
-        setTemperatureData(formattedData.length > 0 ? formattedData : generateTemperatureData());
-        
-        // Calculate data quality
+        // Calculate data quality metrics
         const currentShipment = shipment || await fetchShipmentById(id);
-        if (currentShipment?.minTemp !== undefined && currentShipment?.maxTemp !== undefined) {
+        if (currentShipment?.minTemp !== undefined && currentShipment?.maxTemp !== undefined && tempData.length > 0) {
           const quality = calculateDataQuality(
-            formattedData, 
+            tempData, 
             currentShipment.minTemp, 
             currentShipment.maxTemp
           );
@@ -387,23 +415,23 @@ export const useShipmentDetail = (id: string, existingShipment?: Shipment) => {
         
         setError(null);
       } catch (err) {
-        console.error('Error fetching sensor data:', err);
+        console.error('Error in useShipmentDetail:', err);
         setError(err instanceof Error ? err : new Error('Unknown error occurred'));
         
-        // Still provide mock data on error for better UX
-        setTemperatureData(generateTemperatureData());
+        // No longer fall back to generated mock data
+        setTemperatureData([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     getShipmentData();
-  }, [id, shipment]);
+  }, [id, shipment, sensorData, preformattedTempData]);
 
   return { shipment, temperatureData, dataQuality, isLoading, error };
 };
 
-// New function to fetch only sensor data
+// New function to fetch and process sensor data
 export const fetchShipmentSensorData = async (transportationId: string) => {
   try {
     const path = `${baseUrl}/bundle?transportationId=${transportationId}`;
@@ -417,36 +445,95 @@ export const fetchShipmentSensorData = async (transportationId: string) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
-    const data = await response.json();
+    const rawData = await response.json();
+    console.log('Raw sensor data from API:', rawData);
     
-    if (!Array.isArray(data)) {
-      console.warn('API did not return an array for sensor data');
+    // Handle different possible formats of the data
+    let data = [];
+    
+    // Case 1: The data is already an array of sensor readings
+    if (Array.isArray(rawData)) {
+      data = rawData;
+    } 
+    // Case 2: The data is an object with a data property containing the array
+    else if (rawData && typeof rawData === 'object' && Array.isArray(rawData.data)) {
+      data = rawData.data;
+    }
+    // Case 3: The data is a stringified JSON array
+    else if (typeof rawData === 'string') {
+      try {
+        const parsed = JSON.parse(rawData);
+        data = Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error('Failed to parse string data as JSON', e);
+      }
+    }
+    
+    if (!Array.isArray(data) || data.length === 0) {
+      console.warn('No valid sensor data array found after parsing');
       return [];
     }
     
-    // Process the data to parse readings and remove device_id
-    const processedData = data.map((item) => {
-      // Parse readings if it's a string
-      const readingsObj = typeof item.readings === 'string' 
-        ? JSON.parse(item.readings) 
-        : item.readings;
-      
-      // Convert timestamp to milliseconds if needed
-      const timestampMs = item.timestamp * (item.timestamp < 10000000000 ? 1000 : 1);
-      
-      // Return clean object without device_id
-      const cleanItem = {
-        timestamp: timestampMs,
-        readings: {
-          temperature: readingsObj.temperature,
-          humidity: readingsObj.humidity,
-          pressure: readingsObj.pressure,
-          timestamp: item.timestamp // Keep original timestamp in readings
+    // Process each item safely
+    const processedData = [];
+    
+    for (const item of data) {
+      try {
+        if (!item) continue; // Skip null/undefined items
+        
+        // Handle different readings formats
+        let readings;
+        
+        // If item is directly a readings object with temperature
+        if (typeof item === 'object' && item.temperature !== undefined) {
+          readings = item;
         }
-      };
-      
-      return cleanItem;
-    });
+        // If item has readings property as string or object
+        else if (item.readings !== undefined) {
+          readings = typeof item.readings === 'string' 
+            ? JSON.parse(item.readings) 
+            : item.readings;
+        }
+        // If item has a data property containing the readings
+        else if (item.data && typeof item.data === 'object') {
+          readings = item.data;
+        }
+        // Default empty readings object
+        else {
+          readings = { temperature: 0, humidity: 0, pressure: 0 };
+        }
+        
+        // Ensure readings is an object with required properties
+        if (typeof readings !== 'object' || readings === null) {
+          readings = { temperature: 0, humidity: 0, pressure: 0 };
+        }
+        
+        // Handle timestamp
+        let timestamp;
+        
+        if (item.timestamp !== undefined) {
+          timestamp = Number(item.timestamp);
+          // Convert from seconds to milliseconds if needed
+          if (timestamp < 10000000000) timestamp *= 1000;
+        } else {
+          timestamp = Date.now(); // Default to current time
+        }
+        
+        // Create standardized sensor data object
+        processedData.push({
+          device_id: item.device_id || 'unknown',
+          timestamp,
+          readings: {
+            temperature: Number(readings.temperature || 0),
+            humidity: Number(readings.humidity || 0),
+            pressure: Number(readings.pressure || 0)
+          }
+        });
+      } catch (itemError) {
+        console.error('Error processing sensor data item:', itemError);
+        // Continue with next item
+      }
+    }
     
     console.log('Processed sensor data:', processedData);
     return processedData;
