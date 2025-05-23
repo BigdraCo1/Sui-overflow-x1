@@ -53,8 +53,8 @@ export class BlockchainRetrieverService {
       .map(metadata => metadata.payload?.allowlist?.blobId)
       .filter((blobId): blobId is string => blobId !== null && blobId !== undefined); // Type guard to ensure only strings
 
-    //return await this.walrusSealService.retrieveBlobs(blobIds);
-    return blobIds;
+    return await this.walrusSealService.retrieveBlobs(blobIds);
+    //return blobIds;
   }
 
   async debugReadblob(blobId: string) {
@@ -85,6 +85,15 @@ export class BlockchainRetrieverService {
       }
     });
     return await account?.transportationList;
+  }
+
+  async retriveTransportation(transportationId: string) {
+    const transportation = await this.databaseService.transportation.findFirst({
+      where: {
+        id: transportationId,
+      },
+    });
+    return await transportation;
   }
 
   update(id: number, updateBlockchainRetrieverDto: UpdateBlockchainRetrieverDto) {

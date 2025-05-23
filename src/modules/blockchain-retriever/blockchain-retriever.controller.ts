@@ -34,6 +34,14 @@ export class BlockchainRetrieverController {
     return this.blockchainRetrieverService.bundleBlob(transportationId);
   }
 
+  @Get('transportation/:id')
+  async bundleBlobByTransportationId(@Param('id') transportationId: string) {
+    if (!transportationId) {
+      throw new BadRequestException('transportationId path parameter is required');
+    }
+    return this.blockchainRetrieverService.retriveTransportation(transportationId);
+  }
+
   @Get('debug')
   debugReadblob(@Query('blobId') blobId: string) {
     if (!blobId) {
