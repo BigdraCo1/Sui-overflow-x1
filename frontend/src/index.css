@@ -1,0 +1,114 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 39 70% 96%; /* Off-white background */
+    --foreground: 210 20% 25%; /* Dark gray text */
+
+    --card: 39 70% 96%; /* Changed to match background */
+    --card-foreground: 210 20% 25%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 20% 25%;
+
+    --primary: 174 55% 67%; /* Updated to #81D8D0 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 30% 96%;
+    --secondary-foreground: 210 20% 25%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 210 20% 60%;
+
+    --accent: 174 55% 67%; /* Updated to #81D8D0 */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 67%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 85%; /* Border color */
+    --input: 210 20% 90%;
+    --ring: 174 55% 67%; /* Updated to #81D8D0 */
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 174 55% 67%; /* Updated to #81D8D0 */
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 174 55% 67%; /* Updated to #81D8D0 */
+  }
+
+  .dark {
+    --background: 210 30% 15%;
+    --foreground: 210 20% 98%;
+
+    --card: 210 30% 15%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 210 30% 15%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 174 55% 67%; /* Updated to #81D8D0 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 30% 20%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 210 30% 20%;
+    --muted-foreground: 210 20% 60%;
+
+    --accent: 174 55% 67%; /* Updated to #81D8D0 */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 67%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 30% 25%;
+    --input: 210 30% 25%;
+    --ring: 174 55% 67%; /* Updated to #81D8D0 */
+
+    --sidebar-background: 210 30% 15%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 174 55% 67%; /* Updated to #81D8D0 */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 30% 20%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 210 30% 25%;
+    --sidebar-ring: 174 55% 67%; /* Updated to #81D8D0 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  .med-card {
+    @apply bg-background rounded-lg border border-gray-300 p-6 transition-all duration-300;
+  }
+  
+  .med-container {
+    @apply max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@layer utilities {
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+}
