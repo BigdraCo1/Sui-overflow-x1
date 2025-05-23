@@ -1,9 +1,4 @@
-# Isopod
-
-A demonstration project showcasing overflow vulnerabilities and exploits in the Sui blockchain ecosystem using the Move programming language.
-
----
-
+# <img src="logo/isopod.png" alt="Isopod Logo" width="40" style="vertical-align: middle;"/> Isopod 
 ## 📖 About
 
 **Isopod** is a comprehensive security research and demonstration project by the **Isopod Team** focused on showcasing overflow vulnerabilities in the Sui blockchain ecosystem using the Move language. It began as a solution to address real-world issues in **supply chain transportation transparency**, especially for sensitive goods like vaccines or pharmaceuticals.
@@ -14,15 +9,15 @@ Traditional tracking systems in logistics are opaque, often relying on **manual 
 
 - Transparent, tamper-proof monitoring via smart contracts
 - Real-time integration of IoT sensor data into the blockchain
-- Overflow exploit demonstrations to test Move’s security model
 - Modular architecture for easy expansion and testing
-- B2B business model focused on time-based transportation metrics
 
 The project also explores next steps in both software and hardware:
 - Integration of zkLogin for secure device authentication
-- Reduced power consumption for edge devices
+- Design a hardware solution that offers the same level of safety and integrity as the Sui blockchain.
 
 The Isopod framework is not just a teaching tool but a practical solution model for modern logistics and decentralized transparency.
+
+<img src="logo/logical_model.png" alt="Isopod Logo" style="vertical-align: middle;"/> 
 
 ---
 
