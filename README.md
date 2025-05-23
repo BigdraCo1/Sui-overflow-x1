@@ -1,4 +1,4 @@
-# <img src="logo/isopod.png" alt="Isopod Logo" width="30" style="vertical-align: middle;"/> Isopod 
+# <img src="logo/isopod.png" alt="Isopod Logo" width="50" style="vertical-align: middle;"/> Isopod 
 ## 📖 About
 
 **Isopod** is a comprehensive security research and demonstration project by the **Isopod Team** focused on showcasing overflow vulnerabilities in the Sui blockchain ecosystem using the Move language. It began as a solution to address real-world issues in **supply chain transportation transparency**, especially for sensitive goods like vaccines or pharmaceuticals.
