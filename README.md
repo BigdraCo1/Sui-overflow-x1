@@ -136,7 +136,7 @@ sui client publish --gas-budget 20000000
 **Terminal 1 - Backend Services**
 ```bash
 cd middleware
-npm run dev
+yarn run start
 ```
 
 **Terminal 2 - Frontend**
@@ -145,7 +145,7 @@ cd frontend
 npm start
 ```
 
-Open your browser at [http://localhost:3000](http://localhost:3000)
+Open your browser at [http://localhost:5173](http://localhost:5173)
 
 ---
 
@@ -154,7 +154,7 @@ Open your browser at [http://localhost:3000](http://localhost:3000)
 ### Basic Overflow Tests
 
 ```bash
-cd develop
+cd DataLocker
 sui move test
 ```
 
