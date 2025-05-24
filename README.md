@@ -81,7 +81,7 @@ cd Sui-overflow-x1
 #### Build Move Contracts
 
 ```bash
-cd develop
+cd Develop
 sui move build
 ```
 
@@ -97,8 +97,8 @@ npm run build
 
 ```bash
 cd ../middleware
-npm install
-npm run build
+yarn install
+yarn run build
 ```
 
 ---
@@ -129,6 +129,12 @@ cd develop
 sui client publish --gas-budget 20000000
 ```
 
+**We're using this contract in our project(deployed on testnet)**
+
+```bash
+0x0fa339e890387266ca3463d2277d2670abb9095351bd6d7c894e7a076c320d3d
+```
+
 ---
 
 ### Start Development Environment
@@ -136,6 +142,8 @@ sui client publish --gas-budget 20000000
 **Terminal 1 - Backend Services**
 ```bash
 cd middleware
+docker-compose up -d
+yarn prisma migrate deploy
 yarn run start
 ```
 
