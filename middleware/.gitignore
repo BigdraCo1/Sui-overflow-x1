@@ -44,7 +44,6 @@ lerna-debug.log*
 
 # keypair
 keypair*.json
-*.key
 
 # temp directory
 .temp
