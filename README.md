@@ -12,7 +12,6 @@ Traditional tracking systems in logistics are opaque, often relying on **manual 
 - Modular architecture for easy expansion and testing
 
 The project also explores next steps in both software and hardware:
-- Integration of zkLogin for secure device authentication
 - Design a hardware solution that offers the same level of safety and integrity as the Sui blockchain.
 
 The Isopod framework is not just a teaching tool but a practical solution model for modern logistics and decentralized transparency.
