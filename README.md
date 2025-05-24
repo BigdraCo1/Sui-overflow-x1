@@ -142,7 +142,7 @@ yarn run start
 **Terminal 2 - Frontend**
 ```bash
 cd frontend
-npm start
+npm run dev
 ```
 
 Open your browser at [http://localhost:5173](http://localhost:5173)
